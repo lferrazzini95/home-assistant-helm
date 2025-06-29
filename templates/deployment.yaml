@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: home-assistant
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: home-assistant
+  template:
+    metadata:
+      labels:
+        app: home-assistant
+    spec:
+      hostNetwork: true
+      containers:
+      - name: home-assistant
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: {{ .Values.service.port }} 
+        volumeMounts:
+        - mountPath: /dev/ttyUSB0
+          name: dongle
+        - name: config
+          mountPath: /config
+        resources: {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-config
+      - name: dongle
+        hostPath:
+          path: /dev/ttyUSB0
+          type: CharDevice

@@ -1,0 +1,6 @@
+apiVersion: 0.1.0
+name: home-assistant
+description: Helm chart for deploying Home Assistant
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,0 +1,36 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: homeassistant-backup
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: "0 3 * * 0" # Every Sunday at 3 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: curlimages/curl:latest # Use curl for API calls
+            env:
+            - name: HA_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backup.tokenSecretName }}
+                  key: token
+            args:
+            - "-X"
+            - "POST"
+            - "-H"
+            - "Authorization: Bearer $(HA_TOKEN)"
+            - "-H"
+            - "Content-Type: application/json"
+            - "-d"
+            - "{\"name\": \"Weekly Backup\"}"
+            - "http://homeassistant.local:{{ .Values.service.port }}/api/hassio/backups/new/full"
+            envFrom:
+            - secretRef:
+                name: homeassistant-token
+          restartPolicy: OnFailure
+{{ end }}
