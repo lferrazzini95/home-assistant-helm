@@ -4,36 +4,52 @@ metadata:
   name: {{ .Release.Name }}
   namespace: {{ .Values.namespace }}
   labels:
-    app: home-assistant
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: home-assistant
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: home-assistant
+        app: {{ .Release.Name }}
     spec:
       hostNetwork: true
       containers:
-      - name: home-assistant
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      - name: {{ .Release.Name }}
+        image: {{ printf "%s:%s" .Values.image.name .Values.image.tag }}
         securityContext:
           privileged: true
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: false
+          runAsUser: 0
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+              - NET_BROADCAST
+              - SYS_ADMIN
         ports:
-        - containerPort: {{ .Values.service.port }} 
+        - containerPort: {{ .Values.service.port }}
         volumeMounts:
         - mountPath: /dev/ttyUSB0
           name: dongle
+        - mountPath: /run/dbus
+          name: dbus
+          readOnly: true
         - name: config
           mountPath: /config
-        resources: {{- toYaml .Values.resources | nindent 12 }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
       volumes:
       - name: config
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-config
       - name: dongle
         hostPath:
-          path: /dev/ttyUSB0
+          path: /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_6467198fa2dbed119315ef2d62c613ac-if00-port0
           type: CharDevice
+      - name: dbus
+        hostPath:
+          path: /run/dbus
+          type: Directory

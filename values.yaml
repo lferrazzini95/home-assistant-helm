@@ -1,24 +1,24 @@
 replicaCount: 1
-namespace: home-assistant
+
 image:
-  repository: homeassistant/home-assistant
-  tag: "latest" # Update as needed
+  name: homeassistant/home-assistant
+  tag: "latest"
 
 service:
   type: ClusterIP
   port: 8123
 
-persistence:
-  enabled: true
-  size: 10Gi
+storage:
+  config:
+    size: 10Gi
 
 resources:
   requests:
     cpu: "250m"
     memory: "256Mi"
   limits:
-    cpu: "500m"
-    memory: "512Mi"
+    cpu: "1"
+    memory: "2Gi"
 
 backup:
   tokenSecretName: homeassistant-token
