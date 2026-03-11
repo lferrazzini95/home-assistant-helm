@@ -23,3 +23,9 @@ resources:
 backup:
   tokenSecretName: homeassistant-token
   enabled: true
+
+ingress:
+  enabled: true
+  host: "my.home.com"
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
