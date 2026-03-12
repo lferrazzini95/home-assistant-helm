@@ -1,3 +1,4 @@
+{{- if .Values.service.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,6 +15,7 @@ spec:
   selector:
     app: {{ .Release.Name }}
   type: ClusterIP
+{{- end }}
 ---
 {{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
@@ -34,5 +36,5 @@ spec:
           service:
             name: {{ printf "%s" .Release.Name }}
             port:
-              number: {{ .Values.ports.webui }}
+              number: {{ .Values.service.port }}
 {{- end }}

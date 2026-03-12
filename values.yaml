@@ -5,6 +5,7 @@ image:
   tag: "latest"
 
 service:
+  enabled: enabled
   type: ClusterIP
   port: 8123
 
